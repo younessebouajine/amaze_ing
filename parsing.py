@@ -1,3 +1,7 @@
+class InvalideValue(Exception):
+    pass
+
+
 
 def parsing_line(line: str) -> tuple:
     if "=" not in line:
@@ -11,7 +15,10 @@ def parsing_line(line: str) -> tuple:
         if not value.isdigit():
             raise ValueError(f"{key} must be an integer. Got: {value}")
         value = int(value)
-
+        if value < 10:
+            raise LessValue(f"Error: number {value} is less then 10 please try another number")
+        elif value > 20:
+            raise InvalideValue(f"Error: number {value} is more then 20 please try another number")
     elif key in ("ENTRY", "EXIT"):
         parts = value.split(",")
         if len(parts) != 2 or not all(p.strip().isdigit() for p in parts):

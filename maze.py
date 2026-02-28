@@ -33,11 +33,16 @@
 
 
 import os
+import time
 from colorama import init
 from parsing import read_file
 from cell import create_grid, print_maze
+from parsing import read_file, InvalideValue
 
 init()  # Windows support
+
+
+
 
 # ANSI Colors
 COLORS = [
@@ -51,7 +56,16 @@ COLORS = [
 
 color_index = 0
 
-config = read_file()
+def print_title(file_path, delay=0.7, color=COLORS[1]):
+    with open(file_path, "r", encoding="utf-8") as f:
+        for line in f:
+            print(color + line.rstrip() + "\033[0m")
+            time.sleep(delay)
+try:
+    config = read_file()
+except InvalideValue as e:
+    print(e)
+    exit(1)
 width = config["WIDTH"]
 height = config["HEIGHT"]
 entry = config["ENTRY"]
@@ -59,6 +73,10 @@ exit = config["EXIT"]
 
 grid = create_grid(width, height)
 
+
+print_title("paint_maze.txt", delay=0.8, color=COLORS[color_index])
+
+print_maze(grid, entry, exit)
 
 while True:
     os.system("clear" if os.name != "nt" else "cls")
@@ -87,6 +105,7 @@ while True:
 
     elif choice == 3:
         color_index = (color_index + 1) % len(COLORS)
+
 
     elif choice == 4:
         print("Goodbye 👋")
