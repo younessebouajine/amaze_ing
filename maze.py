@@ -63,7 +63,7 @@ def print_title(file_path, delay=0.7, color=COLORS[1]):
             time.sleep(delay)
 try:
     config = read_file()
-except InvalideValue as e:
+except (InvalideValue, ValueError) as  e:
     print(e)
     exit(1)
 width = config["WIDTH"]
@@ -100,8 +100,14 @@ while True:
     except ValueError:
         continue
 
+
     if choice == 1:
         grid = create_grid(width, height)
+
+
+    elif choice == 2:
+        pass
+
 
     elif choice == 3:
         color_index = (color_index + 1) % len(COLORS)
@@ -110,3 +116,5 @@ while True:
     elif choice == 4:
         print("Goodbye 👋")
         break
+    else:
+        continue

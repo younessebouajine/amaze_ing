@@ -16,7 +16,7 @@ def parsing_line(line: str) -> tuple:
             raise ValueError(f"{key} must be an integer. Got: {value}")
         value = int(value)
         if value < 10:
-            raise LessValue(f"Error: number {value} is less then 10 please try another number")
+            raise InvalideValue(f"Error: number {value} is less then 10 please try another number")
         elif value > 20:
             raise InvalideValue(f"Error: number {value} is more then 20 please try another number")
     elif key in ("ENTRY", "EXIT"):
