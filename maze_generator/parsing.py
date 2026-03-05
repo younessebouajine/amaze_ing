@@ -2,38 +2,51 @@ class InvalideValue(Exception):
     pass
 
 
-
 def parsing_line(line: str) -> tuple:
+    line = line.strip()
     if "=" not in line:
         raise ValueError(f"Invalid line: {line}")
 
     key, value = line.split("=", 1)
-    key = key.strip()
+    key = key.upper().strip()
     value = value.strip()
 
-    if key in ("WIDTH", "HEIGHT", "SEED"):
+    if key in ("WIDTH", "HEIGHT"):
         if not value.isdigit():
             raise ValueError(f"{key} must be an integer. Got: {value}")
+        if not value:
+            raise ValueError(f"{key} must be an integer. Got: empty")
+            
         value = int(value)
-        if value < 10:
-            raise InvalideValue(f"Error: number {value} is less then 10 please try another number")
-        elif value > 20:
-            raise InvalideValue(f"Error: number {value} is more then 20 please try another number")
+        if value < 10 or value > 20:
+            raise InvalideValue(
+                f"{key} must be between 10 and 20. Got: {value}"
+            )
     elif key in ("ENTRY", "EXIT"):
         parts = value.split(",")
         if len(parts) != 2 or not all(p.strip().isdigit() for p in parts):
             raise ValueError(f"{key} must be in format x,y. Got: {value}")
         value = tuple(int(p.strip()) for p in parts)
-
     elif key == "PERFECT":
-        if value not in ("True", "False"):
+        value = value.lower()
+        if value not in ("true", "false"):
             raise ValueError(f"PERFECT must be True or False. Got: {value}")
-        value = value == "True"
+        value = value == "true"
+    elif key == "SEED":
+        if not value.isdigit():
+            raise ValueError(f"SEED must be an integer. Got: {value}")
+        value = int(value)
+    elif key == "OUTPUT_FILE":
+        if value == "/":
+            raise InvalideValue("OUTPUT_FILE cannot be '/'")
+
+    if key not in {"WIDTH", "HEIGHT", "ENTRY", "EXIT", "OUTPUT_FILE", "PERFECT", "SEED"}:
+        raise InvalideValue(f"Unknown key: {key}")
 
     return key, value
 
+
 def validate_config(config: dict):
-    
     required_keys = {
         "WIDTH", "HEIGHT", "ENTRY",
         "EXIT", "OUTPUT_FILE",
@@ -42,7 +55,7 @@ def validate_config(config: dict):
 
     missing = required_keys - config.keys()
     if missing:
-        raise ValueError(f"Missing configuration ckeys: {missing}")
+        raise ValueError(f"Missing configuration keys: {missing}")
 
     if config["WIDTH"] <= 0 or config["HEIGHT"] <= 0:
         raise ValueError("WIDTH and HEIGHT must be greater than 0")
@@ -56,15 +69,21 @@ def validate_config(config: dict):
     if not (0 <= x_exit < config["WIDTH"] and 0 <= y_exit < config["HEIGHT"]):
         raise ValueError("EXIT is outside maze bounds")
 
-def read_file():
-    path = "config.txt"
+    if config["ENTRY"] == config["EXIT"]:
+        raise ValueError("Entry point and Exit point cannot be the same")
+
+
+
+def read_file(path="config.txt"):
     config = {}
 
-    with open(path, "r") as file:
+    with open(path, "r", encoding="utf-8") as file:
         for line in file:
             line = line.strip()
-            if line:
-                key, value = parsing_line(line)
+            if not line or line.startswith("#"):
+                continue
+            key, value = parsing_line(line)
+            if key not in config:
                 config[key] = value
 
     validate_config(config)
