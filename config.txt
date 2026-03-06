@@ -1,10 +1,8 @@
-WIDTh=20
-HEIGHt=20
+WIDTh=10
+HEIGHt=10
 ENTRY=3,3
 EXIT=3,0
 OUTPUT_FILE=maze.txt
 PERFECT=false
-#SEED=-2
+SEED=abcde
 #dgzdgz=zdfzdgf
-
-

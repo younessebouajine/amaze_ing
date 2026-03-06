@@ -1,5 +1,6 @@
 class InvalideValue(Exception):
     pass
+from ast import literal_eval
 
 
 def parsing_line(line: str) -> tuple:
@@ -33,12 +34,16 @@ def parsing_line(line: str) -> tuple:
             raise ValueError(f"PERFECT must be True or False. Got: {value}")
         value = value == "true"
     elif key == "SEED":
-        if not value.isdigit():
-            raise ValueError(f"SEED must be an integer. Got: {value}")
-        value = int(value)
+        try:
+            value = literal_eval(value)
+        except (ValueError, SyntaxError):
+            print(f"invalid input seed can just be (int, float, str, bytes, None)")
+        # if not value.isdigit():
+        #     raise ValueError(f"SEED must be an integer. Got: {value}")
+        # value = int(value)
     elif key == "OUTPUT_FILE":
-        if value == "/":
-            raise InvalideValue("OUTPUT_FILE cannot be '/'")
+        if value == "/" or not value:
+            raise InvalideValue("OUTPUT_FILE cannot be '/' or empty")
 
     if key not in {"WIDTH", "HEIGHT", "ENTRY", "EXIT", "OUTPUT_FILE", "PERFECT", "SEED"}:
         raise InvalideValue(f"Unknown key: {key}")
@@ -71,7 +76,6 @@ def validate_config(config: dict):
 
     if config["ENTRY"] == config["EXIT"]:
         raise ValueError("Entry point and Exit point cannot be the same")
-
 
 
 def read_file(path="config.txt"):
