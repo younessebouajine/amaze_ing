@@ -81,14 +81,21 @@ def validate_config(config: dict):
 def read_file(path="config.txt"):
     config = {}
 
-    with open(path, "r", encoding="utf-8") as file:
-        for line in file:
+    with open(path, "r") as file:
+        for line_number, line in enumerate(file, start=1):
             line = line.strip()
+
             if not line or line.startswith("#"):
                 continue
+
             key, value = parsing_line(line)
-            if key not in config:
-                config[key] = value
+
+            if key in config:
+                raise InvalideValue(
+                    f"Duplicate key '{key}' found on line {line_number}"
+                )
+
+            config[key] = value
 
     validate_config(config)
     return config
